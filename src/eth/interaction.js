@@ -63,7 +63,7 @@ let getFundingDetails=async (index)=>{
 let createFunding = (projectName, targetMoney, supportMoney, duration) => {
     return new Promise(async (resolve, reject) => {
         try { // 调用创建方法
-            console.log('aaaa :', projectName, targetMoney, supportMoney)
+            console.log('createFunding Invoke :', projectName, targetMoney, supportMoney)
             let accounts = await web3.eth.getAccounts()
             let res = await fundingFactoryInstance.methods.createFunding(projectName, targetMoney, supportMoney, duration).send({
                     from: accounts[0],
@@ -93,8 +93,89 @@ let handleInvestFunc =  (fundingAddress, supportMoney) => {
     })
 }
 
+let createRequest = (fundingAddress, purpose, cost, seller) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let accounts = await web3.eth.getAccounts();
+            let newInstance = newFundingInstance();
+            newInstance.options.address = fundingAddress;
+            let result = await newInstance.methods.createRequest(purpose, cost, seller).send({
+                from: accounts[0]
+            });
+            resolve(result)
+        } catch (e) {
+            reject(e)
+        }
+    });
+};
+
+const showRequest = (fundingAddress) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let accounts = await web3.eth.getAccounts()
+            let newInstance = newFundingInstance()
+            newInstance.options.address = fundingAddress
+
+            //获取花费请求的数量
+            let requestCount = await newInstance.methods.getRequestsCount().call({
+                from: accounts[0]
+            })
+
+            //遍历请求数量，依次获取每一个请求的详情，添加到数组中
+            let requestDetails = []
+            for (let i = 0; i < requestCount; i++) {
+                let requestDetail = await newInstance.methods.getRequestByIndex(i).call({
+                    from: accounts[0]
+                })
+                requestDetails.push(requestDetail)
+            }
+            resolve(requestDetails)
+        } catch (e) {
+            reject(e)
+        }
+    });
+};
+
+const approveRequest = (fundingAddress,index) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let accounts = await web3.eth.getAccounts();
+            let newInstance = newFundingInstance();
+            newInstance.options.address = fundingAddress;
+            let res = await newInstance.methods.approveRequest(index).send({
+                from: accounts[0]
+            });
+            resolve(res)
+        } catch (e) {
+            reject(e)
+        }
+    });
+};
+
+const finalizeRequest = (fundingAddress,index) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let accounts = await web3.eth.getAccounts();
+            let newInstance = newFundingInstance();
+            newInstance.options.address = fundingAddress;
+            let res = await newInstance.methods.finalizeRequest(index).send({
+                from: accounts[0]
+            });
+            resolve(res)
+        } catch (e) {
+            reject(e)
+        }
+    });
+};
+
+
+
 export {
     getFundingDetails,
     createFunding,
     handleInvestFunc,
+    createRequest,
+    showRequest,
+    approveRequest,
+    finalizeRequest,
 }

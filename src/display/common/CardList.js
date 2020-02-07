@@ -7,7 +7,7 @@ const CardList = (props) => {
 
     let details = props.details
     let onCardClick=props.onCardClick
-    console.log(details)
+    console.table(details)
 
     let cards=details.map(detail=>{
         return <CardFunding key={detail.fundingAddress} detail1={detail} onCardClick={onCardClick}/>

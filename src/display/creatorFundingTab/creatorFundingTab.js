@@ -1,7 +1,8 @@
 import React,{Component} from 'react';
-import {getFundingDetails} from '../../eth/interaction'
+import {getFundingDetails,createRequest,showRequest,finalizeRequest} from '../../eth/interaction'
 import CardList from "../common/CardList";
-import {Segment, Form, Label} from "semantic-ui-react"
+import {Segment, Form, Label,Button} from "semantic-ui-react"
+import RequestTable from "../common/RequestTable";
 
 class CreatorFundingTab extends Component{
 
@@ -11,6 +12,7 @@ class CreatorFundingTab extends Component{
         requestDesc:'',
         requestBalance:'',
         requestAddress:'',
+        requests:[],
     }
 
     async componentWillMount() {
@@ -25,9 +27,34 @@ class CreatorFundingTab extends Component{
 
     handleChange=(e,{name,value})=>this.setState({[name]: value})
 
-    handleCreateRequest=()=>{
+    handleCreateRequest=async()=>{
         let {creatorFundingsDetails, selectedFundingDetail, requestDesc, requestBalance, requestAddress} = this.state
         console.log(requestDesc, requestBalance, requestAddress)
+        try {
+            let result = await createRequest(selectedFundingDetail.fundingAddress, requestDesc, requestBalance, requestAddress);
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    handleShowRequests = async() => {
+        let address = this.state.selectedFundingDetail.fundingAddress;
+        try {
+            let requests = await showRequest(address);
+            this.setState({requests})
+            console.log(requests)
+        } catch (e) {
+            console.log(e)
+        }
+    };
+
+    handleFinalize=async (index)=>{
+        console.log('终结请求')
+        try {
+            let res = await finalizeRequest(this.state.selectedFundingDetail.fundingAddress, index);
+        } catch (e) {
+            console.log(e)
+        }
     }
 
     onCardClick=(selectedFundingDetail)=>{
@@ -36,7 +63,7 @@ class CreatorFundingTab extends Component{
     }
 
     render(){
-        let {creatorFundingsDetails, selectedFundingDetail, requestDesc, requestBalance, requestAddress} = this.state
+        let {creatorFundingsDetails, selectedFundingDetail, requestDesc, requestBalance, requestAddress,requests} = this.state
         return(
             <div>
                 <CardList details={creatorFundingsDetails} onCardClick={this.onCardClick}/>
@@ -69,6 +96,15 @@ class CreatorFundingTab extends Component{
                             </Form>
                         </Segment>
                     </div>
+                }
+
+                {
+                    selectedFundingDetail && (
+                        <div>
+                            <Button onClick={this.handleShowRequests}>申请详情</Button>
+                            <RequestTable requests={requests} handleFinalize={this.handleFinalize} pageKey={2} investorCount={selectedFundingDetail.getInvestorsCount}/>
+                        </div>
+                    )
                 }
             </div>
         )

@@ -1,68 +1,89 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+# 功能介绍
 
-In the project directory, you can run:
+### 一、发起众筹
 
-### `npm start`
+   在“我发起的”标签页中，发起众筹功能的可选输入项：
+   
+   - 项目名称 
+   - 支持金额（以wei为单位，遵循1 ether = 1\*10**18 wei的换算规律） 
+   - 目标金额（同上）
+   - 众筹时间（以秒为单位）
+   
+   点击“创建众筹”后即调用浏览器的MetaMask，就会与区块链进行交互来创建一个交易
+   
+   创建成功后的众筹就会显示在“所有的”标签页中
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 二、发起付款请求
+    
+   在“我发起的”标签页中，点击一个众筹，其项目信息就会出现在下方“发起付款请求”表单中。
+   
+   发起付款请求功能的可选输入项：
+   
+   - 请求描述
+   - 付款金额（以wei为单位）
+   - 商家收款地址（最终收款方的钱包地址）
+    
+   点击“发起付款请求”后即调用浏览器的MetaMask，就会与区块链进行交互来创建一个交易
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### 三、参与众筹
 
-### `npm test`
+   在“所有的”标签页中，点击一个众筹，其项目信息就会出现在下方“参与众筹”表单中。
+   
+   由于详细信息已自动填充，直接点击“参与众筹”按钮即可调用MetaMask来完成参与操作。
+   
+   当前用户参与过的众筹，会在“我参与的”标签页中显示。
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 四、众筹详情
 
-### `npm run build`
+   在“我发起的”和“我参与的”标签页中，点选一个众筹后，下方即弹出“申请详情”按钮，点击后即显示当前众筹的请求信息：
+   
+   - 花费描述
+   - 花费金额（当前请求需要使用到的金额数）
+   - 商家地址（发起当前请求的钱包地址）
+   - 当前赞成人数（当前同意此请求的人数）
+   - 当前状态（分为voting、approved、completed三种状态）
+   - 操作（“我发起的”标签页下为“支付”按钮；“我参与的”标签页下为“批准”按钮）
+     - “支付”按钮需要在赞成人数超过参与人数一半时才可成功操作
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 五、付款请求投票机制
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+   在“我参与的”标签页中，点选一个众筹后，下方即弹出“申请详情”按钮，点击后即显示当前众筹的请求信息：
+   
+   - 基本信息与（四）中相同，只是操作变成了“批准”按钮。点击后即调用MetaMask来与区块链中的智能合约交互，来完成对当前请求的同意操作。
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+---
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# 使用
+   `注：浏览器需要安装MetaMask`
+### 1.启动Ganache客户端（支持Infura代理和Ropsten网络）
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+    ganache-cli -p 7545
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+启动完成后记录下助记码，登入到MetaMask中
 
-## Learn More
+### 2.合约部署
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+文件02-deploy.js配置好web3的provider，本项目指定的是ganache客户端的HTTP://127.0.0.1:7545，然后运行此js
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+    node 02-deploy.js
 
-### Code Splitting
+运行完后日志会打印出部署完成合约的address，记录下来后在步骤3内使用
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+### 3.初始化智能合约实例
 
-### Analyzing the Bundle Size
+将步骤2获得的address，配置在src/eth/instance.js中的变量factoryAddress
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+### 4.启动react项目
 
-### Making a Progressive Web App
+    npm run start 或 yarn start
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
 
-### Advanced Configuration
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
 
-### Deployment
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
 
-### `npm run build` fails to minify
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
